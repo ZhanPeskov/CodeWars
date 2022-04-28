@@ -1,0 +1,83 @@
+public class Solution {
+    public static void main(String[] args) {
+        System.out.println(RomanNumerals.fromRoman(RomanNumerals.toRoman(3888)));
+
+        for (int i = -1; i <= 5000; i++) {
+            System.out.println(RomanNumerals.fromRoman(RomanNumerals.toRoman(i)));
+        }
+    }
+
+}
+
+public class RomanNumerals {
+
+    public static String toRoman(int n) {
+        if (n <= 0) return null;
+
+        int item, value, reminder, lastRomanItem = RomanNumeral.values().length - 1;
+        int start = lastRomanItem - lastRomanItem % 2;
+        int divider = (int) Math.pow(10, start >> 1);
+        // in order not to reallocate memory every time. Example: for 1 <= value < 4000 the longest value is MMMDCCCLXXXVIII
+        StringBuilder result = new StringBuilder((start + 2) << 1);
+
+        for (int i = start; i >= 0; i -= 2) {
+            reminder = n % divider;
+
+            if (n != reminder) {
+                n = ((n - reminder) / divider);
+                value = n % 5;
+                item = i + (n >= 5 ? 1 : 0);
+
+                if (value == 4 && i < lastRomanItem) {
+                    ++item;
+                    value = 0;
+                    result.append(RomanNumeral.values()[i]);
+                }
+
+                if (item > i) {
+                    if (item > lastRomanItem) return null;
+
+                    result.append(RomanNumeral.values()[item]);
+                }
+
+                for (; value > 0; value--) {
+                    result.append(RomanNumeral.values()[i]);
+                }
+
+                n = reminder;
+            }
+
+            divider /= 10;
+        }
+
+        return result.toString();
+    }
+
+    public static int fromRoman(String romanNumeral) {
+        int item, value, prevValue = 0, result = 0;
+
+        if (romanNumeral != null) {
+            for (Character romanDigit : romanNumeral.toCharArray()) {
+                item = RomanNumeral.valueOf(romanDigit.toString()).ordinal();
+                value = (int) ((item % 2 == 1 ? 5 : 1) * Math.pow(10, item >> 1));
+                result += prevValue < value ? -prevValue : prevValue;
+                prevValue = value;
+            }
+        }
+
+        return result + prevValue;
+    }
+
+    public enum RomanNumeral {
+        I,
+        V,
+        X,
+        L,
+        C,
+        D,
+        M;
+//        easy to append next levels
+//        ↁ,
+//        ↂ;
+    }
+}
